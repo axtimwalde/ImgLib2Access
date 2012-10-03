@@ -45,6 +45,54 @@ public class Code {
 		}
 		return out;
 	}
+	
+	static public ImgLib2Access filterBox_Separable( ImgLib2Access in, final long length )
+	{
+		ImgLib2Access out = in;
+		for ( int d = 0; d < in.n(); ++d )
+		{
+			in = out;
+			out = new ImgLib2Access( in.getSize() );
+			final long[] position = new long[ in.n() - 1 ];
+			final long[] size = new long[ position.length ];
+			for ( int i = 0; i < d; ++i )
+				size[ i ] = in.getSize( i );
+			for ( int i = d + 1; i < in.n(); ++i )
+				size[ i - 1 ] = in.getSize( i );
+			
+			int k = 0;
+			do
+			{
+				final ImgLib2Access rowin = in.getKRow( d, position );
+				final ImgLib2Access rowout = out.getKRow( d, position );
+				box1D( rowin, rowout, length );
+				
+				for ( k = 0; k < position.length; ++k )
+					if ( ++position[ k ] < size[ k ] )
+						break;
+					else
+						position[ k ] = 0;
+			}
+			while ( k < position.length );
+		}
+		return out;
+	}
+	
+	static public ImgLib2Access filterBox_Time( final ImgLib2Access in, final long length )
+	{
+		final long nx = in.getWidth();
+		final long ny = in.getHeight();
+		final long nz = in.getSize( 2 );
+		final ImgLib2Access out = new ImgLib2Access( nx, ny, nz );
+		for ( long y = 0; y < ny; ++y )
+			for ( long x = 0; x < nx; ++x )
+			{
+				final ImgLib2Access rowin = in.getKRow( 2, x, y );
+				final ImgLib2Access rowout = out.getKRow( 2, x, y );
+				box1D( rowin, rowout, length );
+			}
+		return out;
+	}
 
 	static public ImgLib2Access filterBox_2D_Recursive( ImgLib2Access in, final long length )
 	{
@@ -241,6 +289,12 @@ public class Code {
 		filterD_2D( ia ).show( "filter C 2d" );
 		localNormalization_2D( ia, 11, 81 ).show( "local normalized 2d" );
 		
-		//ib.createFloatImagePlus().show();
+		final ImagePlus imp3D = new ImagePlus( "http://fiji.sc/cgi-bin/gitweb.cgi?p=imglib.git;a=blob;f=imglib2/examples/street_bw.tif" );
+		
+		imp3D.show();
+		
+		final ImgLib2Access ia3D = new ImgLib2Access( imp3D );
+		filterBox_Time( ia3D, 11 ).show( "box filter time" );
+		filterBox_Separable( ia3D, 5 ).show( "box filter separable" );
 	}
 }
