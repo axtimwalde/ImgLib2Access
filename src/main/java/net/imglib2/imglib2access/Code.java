@@ -78,6 +78,38 @@ public class Code {
 		return out;
 	}
 	
+	static public ImgLib2Access filter_Separable( ImgLib2Access in, final ImgLib2Access... masks )
+	{
+		ImgLib2Access out = in;
+		for ( int d = 0; d < in.n(); ++d )
+		{
+			in = out;
+			out = new ImgLib2Access( in.getSize() );
+			final long[] position = new long[ in.n() - 1 ];
+			final long[] size = new long[ position.length ];
+			for ( int i = 0; i < d; ++i )
+				size[ i ] = in.getSize( i );
+			for ( int i = d + 1; i < in.n(); ++i )
+				size[ i - 1 ] = in.getSize( i );
+			
+			int k = 0;
+			do
+			{
+				final ImgLib2Access rowin = in.getKRow( d, position );
+				final ImgLib2Access rowout = out.getKRow( d, position );
+				convolve3( rowin, rowout, masks[ d ] );
+				
+				for ( k = 0; k < position.length; ++k )
+					if ( ++position[ k ] < size[ k ] )
+						break;
+					else
+						position[ k ] = 0;
+			}
+			while ( k < position.length );
+		}
+		return out;
+	}
+	
 	static public ImgLib2Access filterBox_Time( final ImgLib2Access in, final long length )
 	{
 		final long nx = in.getWidth();
@@ -263,11 +295,6 @@ public class Code {
 		return diff;
 	}
 	
-	protected void fillRows( final ImgLib2Access ima )
-	{
-		
-	}
-	
 	public static void main( final String[] args )
 	{
 		new ImageJ();
@@ -296,5 +323,10 @@ public class Code {
 		final ImgLib2Access ia3D = new ImgLib2Access( imp3D );
 		filterBox_Time( ia3D, 11 ).show( "box filter time" );
 		filterBox_Separable( ia3D, 5 ).show( "box filter separable" );
+		filter_Separable(
+				ia3D,
+				ImgLib2Access.row( 0.25, 0.5, 0.25 ),
+				ImgLib2Access.row( 0.25, 0.5, 0.25 ),
+				ImgLib2Access.row( 0.25, -0.5, 0.25 ) ).abs().normalizeContrast().showAsBytes( "filter separable" );
 	}
 }
