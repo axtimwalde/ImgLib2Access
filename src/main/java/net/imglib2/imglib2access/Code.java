@@ -316,7 +316,7 @@ public class Code {
 		filterD_2D( ia ).show( "filter C 2d" );
 		localNormalization_2D( ia, 11, 81 ).show( "local normalized 2d" );
 		
-		final ImagePlus imp3D = new ImagePlus( "http://fiji.sc/cgi-bin/gitweb.cgi?p=imglib.git;a=blob;f=imglib2/examples/street_bw.tif" );
+		final ImagePlus imp3D = new ImagePlus( "https://github.com/imagej/imglib/raw/master/examples/street_bw.tif" );
 		
 		imp3D.show();
 		
