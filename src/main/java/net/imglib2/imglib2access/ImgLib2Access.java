@@ -50,7 +50,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
 /**
@@ -458,24 +458,24 @@ public class ImgLib2Access
 		return mean;
 	}
 	
-	final static protected Pair< ImageProcessor, XYProjector< RealType< ? >, ? > > createFloatProjector(
+	final static protected ValuePair< ImageProcessor, XYProjector< RealType< ? >, ? > > createFloatProjector(
 			final RandomAccessible< RealType< ? > > src, final int w, final int h )
 	{
 		final FloatProcessor fp = new FloatProcessor( w, h );
 		final ArrayImg< FloatType, FloatArray > img = ArrayImgs.floats( ( float[] )fp.getPixels(), new long[]{ w, h } );
 		final XYProjector< RealType< ? >, FloatType > projector = new XYProjector< RealType< ? >, FloatType >( src, img, new FinalRealFloatConverter() );
 		
-		return new Pair< ImageProcessor, XYProjector< RealType< ? >, ? > >( fp, projector );
+		return new ValuePair< ImageProcessor, XYProjector< RealType< ? >, ? > >( fp, projector );
 	}
 	
-	final static protected Pair< ImageProcessor, XYProjector< RealType< ? >, ? > > createUnsignedByteProjector(
+	final static protected ValuePair< ImageProcessor, XYProjector< RealType< ? >, ? > > createUnsignedByteProjector(
 			final RandomAccessible< RealType< ? > > src, final int w, final int h )
 	{
 		final ByteProcessor fp = new ByteProcessor( w, h );
 		final ArrayImg< UnsignedByteType, ByteArray > img = ArrayImgs.unsignedBytes( ( byte[] )fp.getPixels(), new long[]{ w, h } );
 		final XYProjector< RealType< ? >, UnsignedByteType > projector = new XYProjector< RealType< ? >, UnsignedByteType >( src, img, new FinalRealUnsignedByteConverter() );
 		
-		return new Pair< ImageProcessor, XYProjector< RealType< ? >, ? > >( fp, projector );
+		return new ValuePair< ImageProcessor, XYProjector< RealType< ? >, ? > >( fp, projector );
 	}
 	
 	
@@ -498,7 +498,7 @@ public class ImgLib2Access
 		final int h = ( int )getHeight();
 		final ImageStack stack = new ImageStack( w, h );
 		
-		final Pair< ImageProcessor, XYProjector< RealType< ? >, ? > > pair;
+		final ValuePair< ImageProcessor, XYProjector< RealType< ? >, ? > > pair;
 		switch ( type )
 		{
 		case ImagePlus.GRAY8:
@@ -511,7 +511,7 @@ public class ImgLib2Access
 		int d = 2;
 		do
 		{
-			pair.b.map();
+			pair.getB().map();
 			stack.addSlice( pair.a.duplicate() );
 			
 			for ( d = 2; d < n; ++d )
